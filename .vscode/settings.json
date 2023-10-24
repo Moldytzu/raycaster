@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "README": "markdown",
+        "glut.h": "c"
+    },
+    "editor.formatOnSave": false
+}
