@@ -1,9 +1,12 @@
 #include <GL/glut.h>
+#include <math.h>
 
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH (WINDOW_HEIGHT*2)
+#define PI 3.14159265358979323846264338327950288
+#define WRAP_AROUND_RADIANS(x) {if(x < 0) x += 2*PI; if(x > 2*PI) x -= 2 * PI;} // wrap x degree around radians values (0<=x<=2PI)
 
-double playerX = 500, playerY = 500, playerSize2D = 10;
+double playerX = 400, playerY = 400, playerDx, playerDy, playerAngle /*in radians*/, playerSize2D = 10, playerSpeed = 5;
 
 const int mapWidth = 8, mapHeight = 8, mapArea = mapWidth * mapHeight, mapSize2D = WINDOW_HEIGHT/mapHeight;
 int mapWalls[] = {
@@ -18,6 +21,13 @@ int mapWalls[] = {
 };
 
 // Update/Draw
+void playerUpdateDelta()
+{
+        playerDx = cos(playerAngle) * playerSpeed; // x component of player angle
+        playerDy = sin(playerAngle) * playerSpeed; // y component of player angle
+        // becuase playerAngle is a normalised vector, we can use playerSpeed as a scaler
+}
+
 void mapDraw2D()
 {
     for(int x = 0; x < mapWidth; x++)
@@ -45,10 +55,18 @@ void mapDraw2D()
 
 void playerDraw()
 {
+    // draw point
     glColor3f(0, 0, 1); // blue
     glPointSize(playerSize2D);
     glBegin(GL_POINTS);
     glVertex2f(playerX, playerY);
+    glEnd();
+
+    // draw orientation
+    glLineWidth(1);
+    glBegin(GL_LINES);
+    glVertex2i(playerX, playerY);
+    glVertex2i(playerX + playerDx * 10, playerY + playerDy * 10);
     glEnd();
 }
 
@@ -66,19 +84,27 @@ void windowKeyboard(char key, int x, int y)
     switch (key)
     {
     case 'a':
-        playerX -= 5;
-        break;
-
-    case 's':
-        playerY -= 5;
+        playerAngle += 0.1;
+        WRAP_AROUND_RADIANS(playerAngle);
+        playerUpdateDelta();
         break;
 
     case 'd':
-        playerX += 5;
+        playerAngle -= 0.1;
+        WRAP_AROUND_RADIANS(playerAngle);
+        playerUpdateDelta();
+        break;
+
+    case 's':
+        // do the vector addition and subtraction
+        playerY -= playerDy;
+        playerX -= playerDx;
         break;
 
     case 'w':
-        playerY += 5;
+        // do the vector addition and subtraction
+        playerY += playerDy;
+        playerX += playerDx;
         break;
 
     default:
@@ -112,6 +138,7 @@ int main(int argc, char **argv)
     glutInit(&argc, argv); // initialise glut
     windowInit();          // create the window
     graphicsInit();        // initialise opengl
+    playerUpdateDelta();   // generate initial player x and y delta
     glutMainLoop();        // run the program
     return 0;
 }

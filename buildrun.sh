@@ -1,2 +1,2 @@
-gcc raycaster.c -lGL -lGLU -lglut -o ray
+gcc raycaster.c -lGL -lGLU -lglut -lm -o ray
 ./ray
