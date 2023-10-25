@@ -49,7 +49,7 @@ void playerUpdateDelta()
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
 void drawRays()
 {
-    double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset;
+    double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
         rayAngle = playerAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
@@ -74,6 +74,11 @@ void drawRays()
 
         if (distance == MAX_DISTANCE*RESOLUTION)
             continue;
+
+        // fisheye compensation
+        cameraAngle = playerAngle - rayAngle; // determine the camera angle
+        WRAP_AROUND_RADIANS(cameraAngle);
+        distance = distance * cos(cameraAngle); // adjust distance by x component of camera angle
 
         lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
         lineOffset = WALL_HEIGHT - lineHeight/2; // move the line at middle
