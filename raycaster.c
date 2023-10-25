@@ -84,11 +84,15 @@ void drawRays()
         lineOffset = WALL_HEIGHT - lineHeight/2; // move the line at middle
 
         // draw the ray on the map
-        glColor3f(1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0, 0);
         glLineWidth(1 / RESOLUTION);
         glBegin(GL_LINES);
+        glColor3f(1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0, 0); // wall
         glVertex2f(ray / RESOLUTION, lineHeight + lineOffset);
         glVertex2f(ray / RESOLUTION, lineOffset);
+
+        glColor3f(0, 1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0); // floor
+        glVertex2f(ray / RESOLUTION, lineOffset);
+        glVertex2f(ray / RESOLUTION, 0);
         glEnd();
     }
 }
