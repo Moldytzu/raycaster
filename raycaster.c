@@ -16,7 +16,8 @@
             x -= 2 * PI;       \
     } // wrap x degree around radians values (0<=x<=2PI)
 
-double playerX = 1, playerY = 1, playerDx, playerDy, playerAngle = PI /*in radians*/, playerSize2D = 10, playerSpeed = 0.01;
+double playerX = 1, playerY = 1, playerDx, playerDy, playerAngle = 0.523 /*30 deg in radians*/, playerSpeed = 1.5, playerRotationDegrees = 100;
+double deltaTime = 0;
 
 const int mapWidth = 8, mapHeight = 8;
 int mapWalls[] = {
@@ -47,8 +48,11 @@ void playerUpdateDelta()
 #define SHADE_COEFFICIENT 1
 #define MAX_WALL_HEIGHT WINDOW_HEIGHT
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
+#define MAX_FPS 100
 void drawRays()
 {
+    int a =  glutGet(GLUT_ELAPSED_TIME);
+
     double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
@@ -95,6 +99,14 @@ void drawRays()
         glVertex2f(ray / RESOLUTION, 0);
         glEnd();
     }
+
+    do
+    {
+        int b = glutGet(GLUT_ELAPSED_TIME);
+        deltaTime = (b-a) * 1/1000.0; 
+    } while((1/deltaTime) > MAX_FPS);
+
+    printf("FPS: %f\n",1/deltaTime);
 }
 
 // Callbacks
@@ -112,27 +124,27 @@ void windowKeyboard(char key, int x, int y)
     switch (key)
     {
     case 'd':
-        playerAngle += playerSpeed * 5;
+        playerAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
         WRAP_AROUND_RADIANS(playerAngle);
         playerUpdateDelta();
         break;
 
     case 'a':
-        playerAngle -= playerSpeed * 5;
+        playerAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
         WRAP_AROUND_RADIANS(playerAngle);
         playerUpdateDelta();
         break;
 
     case 's':
         // do the vector addition and subtraction
-        playerY -= playerDy;
-        playerX -= playerDx;
+        playerY -= playerDy * playerSpeed * deltaTime;
+        playerX -= playerDx * playerSpeed * deltaTime;
         break;
 
     case 'w':
         // do the vector addition and subtraction
-        playerY += playerDy;
-        playerX += playerDx;
+        playerY += playerDy * playerSpeed * deltaTime;
+        playerX += playerDx * playerSpeed * deltaTime;
         break;
 
     default:
