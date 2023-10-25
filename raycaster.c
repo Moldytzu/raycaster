@@ -1,14 +1,24 @@
 #include <GL/glut.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdbool.h>
 
-#define WINDOW_HEIGHT 800
-#define WINDOW_WIDTH (WINDOW_HEIGHT*2)
-#define PI 3.14159265358979323846264338327950288
-#define WRAP_AROUND_RADIANS(x) {if(x < 0) x += 2*PI; if(x > 2*PI) x -= 2 * PI;} // wrap x degree around radians values (0<=x<=2PI)
+// NOTE: all angles are in RADIANS!
 
-double playerX = 400, playerY = 400, playerDx, playerDy, playerAngle /*in radians*/, playerSize2D = 10, playerSpeed = 5;
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
+#define PI M_PI
+#define WRAP_AROUND_RADIANS(x) \
+    {                          \
+        if (x < 0)             \
+            x += 2 * PI;       \
+        if (x > 2 * PI)        \
+            x -= 2 * PI;       \
+    } // wrap x degree around radians values (0<=x<=2PI)
 
-const int mapWidth = 8, mapHeight = 8, mapArea = mapWidth * mapHeight, mapSize2D = WINDOW_HEIGHT/mapHeight;
+double playerX = 1, playerY = 1, playerDx, playerDy, playerAngle = PI /*in radians*/, playerSize2D = 10, playerSpeed = 0.01;
+
+const int mapWidth = 8, mapHeight = 8;
 int mapWalls[] = {
     1,1,1,1,1,1,1,1,
     1,0,0,0,0,0,0,1,
@@ -23,74 +33,78 @@ int mapWalls[] = {
 // Update/Draw
 void playerUpdateDelta()
 {
-        playerDx = cos(playerAngle) * playerSpeed; // x component of player angle
-        playerDy = sin(playerAngle) * playerSpeed; // y component of player angle
-        // becuase playerAngle is a normalised vector, we can use playerSpeed as a scaler
+    playerDx = cos(playerAngle) * playerSpeed; // x component of player angle
+    playerDy = sin(playerAngle) * playerSpeed; // y component of player angle
+    // becuase playerAngle is a normalised vector, we can use playerSpeed as a scaler
 }
 
-void mapDraw2D()
+#define TO_RADIANS(x) ((x) * (PI / 180.0))
+#define FOV 60.0 // in degrees
+#define RESOLUTION 3
+#define MAX_DISTANCE 1000
+#define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
+#define DISTANCE_COEFFICIENT (0.01/RESOLUTION)
+void drawRays()
 {
-    for(int x = 0; x < mapWidth; x++)
+    double rayAngle, wallX, wallY, rayX, rayY, h, distance;
+    for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
-        for(int y = 0; y < mapHeight; y++)
+        rayAngle = playerAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
+        wallX = playerX; // set current wall coordinates to player's
+        wallY = playerY; //
+        rayY = sin(rayAngle) * DISTANCE_COEFFICIENT; // use vector decomposition to determine X and Y components of the ray
+        rayX = cos(rayAngle) * DISTANCE_COEFFICIENT; // 
+
+        distance = 0;
+        while (distance++ < MAX_DISTANCE*RESOLUTION) // check for ray collision
         {
-            int xOffset = x * mapSize2D, yOffset = y * mapSize2D;
-            int wallState = mapWalls[y * mapWidth + x];
+            wallX = wallX + rayX; // increase wall coordinates
+            wallY = wallY + rayY;
 
-            if(wallState == 1) 
-                glColor3f(0,0,0); // each wall is black
-            else
-                glColor3f(1,1,1); // each empty is white
-
-            // draw a square at the points
-            glBegin(GL_QUADS);
-            glVertex2i(xOffset, yOffset);
-            glVertex2i(xOffset, yOffset + mapSize2D);
-            glVertex2i(xOffset + mapSize2D, yOffset + mapSize2D);
-            glVertex2i(xOffset + mapSize2D, yOffset);
-            glEnd();
+            if (wallX < mapWidth && wallY < mapHeight &&       // check for wall boundaries
+                wallX >= 0 && wallY >= 0 &&
+                mapWalls[(int)wallY * mapHeight + (int)wallX]) // check for wall to be present
+            {
+                h = WINDOW_HEIGHT / (distance * DISTANCE_COEFFICIENT);
+                break;
+            }
         }
+
+        if (distance == MAX_DISTANCE*RESOLUTION)
+            continue;
+
+        // draw the ray on the map
+        glColor3f(1 / (distance * DISTANCE_COEFFICIENT), 0, 0);
+        glLineWidth(1 / RESOLUTION);
+        glBegin(GL_LINES);
+        glVertex2f(ray / RESOLUTION, h);
+        glVertex2f(ray / RESOLUTION, 0);
+        glEnd();
     }
-}
-
-void playerDraw()
-{
-    // draw point
-    glColor3f(0, 0, 1); // blue
-    glPointSize(playerSize2D);
-    glBegin(GL_POINTS);
-    glVertex2f(playerX, playerY);
-    glEnd();
-
-    // draw orientation
-    glLineWidth(1);
-    glBegin(GL_LINES);
-    glVertex2i(playerX, playerY);
-    glVertex2i(playerX + playerDx * 10, playerY + playerDy * 10);
-    glEnd();
 }
 
 // Callbacks
 void windowUpdate()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
-    mapDraw2D();                                        // draw the map
-    playerDraw();                                       // draw the player
-    glutSwapBuffers();                                  // update the screen
+    glClear(GL_COLOR_BUFFER_BIT); // clear the screen
+    drawRays();                   // draw rays on screen
+    glFlush();                    // flush all draw commands
+    glutSwapBuffers();            // update the screen
+    glutPostRedisplay();          // redraw window
 }
 
 void windowKeyboard(char key, int x, int y)
 {
     switch (key)
     {
-    case 'a':
-        playerAngle += 0.1;
+    case 'd':
+        playerAngle += playerSpeed * 5;
         WRAP_AROUND_RADIANS(playerAngle);
         playerUpdateDelta();
         break;
 
-    case 'd':
-        playerAngle -= 0.1;
+    case 'a':
+        playerAngle -= playerSpeed * 5;
         WRAP_AROUND_RADIANS(playerAngle);
         playerUpdateDelta();
         break;
