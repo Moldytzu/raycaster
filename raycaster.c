@@ -44,6 +44,7 @@ void playerUpdateDelta()
 #define MAX_DISTANCE 1000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
 #define DISTANCE_COEFFICIENT (0.01/RESOLUTION)
+#define SHADE_COEFFICIENT 1
 void drawRays()
 {
     double rayAngle, wallX, wallY, rayX, rayY, h, distance;
@@ -74,7 +75,7 @@ void drawRays()
             continue;
 
         // draw the ray on the map
-        glColor3f(1 / (distance * DISTANCE_COEFFICIENT), 0, 0);
+        glColor3f(1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0, 0);
         glLineWidth(1 / RESOLUTION);
         glBegin(GL_LINES);
         glVertex2f(ray / RESOLUTION, h);
