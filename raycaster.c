@@ -43,11 +43,13 @@ void playerUpdateDelta()
 #define RESOLUTION 3
 #define MAX_DISTANCE 1000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
-#define DISTANCE_COEFFICIENT (0.01/RESOLUTION)
+#define DISTANCE_COEFFICIENT (0.01 / RESOLUTION)
 #define SHADE_COEFFICIENT 1
+#define MAX_WALL_HEIGHT WINDOW_HEIGHT
+#define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
 void drawRays()
 {
-    double rayAngle, wallX, wallY, rayX, rayY, h, distance;
+    double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
         rayAngle = playerAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
@@ -66,7 +68,6 @@ void drawRays()
                 wallX >= 0 && wallY >= 0 &&
                 mapWalls[(int)wallY * mapHeight + (int)wallX]) // check for wall to be present
             {
-                h = WINDOW_HEIGHT / (distance * DISTANCE_COEFFICIENT);
                 break;
             }
         }
@@ -74,12 +75,15 @@ void drawRays()
         if (distance == MAX_DISTANCE*RESOLUTION)
             continue;
 
+        lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
+        lineOffset = WALL_HEIGHT - lineHeight/2; // move the line at middle
+
         // draw the ray on the map
         glColor3f(1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0, 0);
         glLineWidth(1 / RESOLUTION);
         glBegin(GL_LINES);
-        glVertex2f(ray / RESOLUTION, h);
-        glVertex2f(ray / RESOLUTION, 0);
+        glVertex2f(ray / RESOLUTION, lineHeight + lineOffset);
+        glVertex2f(ray / RESOLUTION, lineOffset);
         glEnd();
     }
 }
