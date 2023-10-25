@@ -41,10 +41,10 @@ void playerUpdateDelta()
 
 #define TO_RADIANS(x) ((x) * (PI / 180.0))
 #define FOV 60.0 // in degrees
-#define RESOLUTION 3
-#define MAX_DISTANCE 1000
+#define RESOLUTION 10
+#define MAX_DISTANCE 10000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
-#define DISTANCE_COEFFICIENT (0.01 / RESOLUTION)
+#define DISTANCE_COEFFICIENT (0.005 / TO_RADIANS(FOV))
 #define SHADE_COEFFICIENT 500
 #define MAX_WALL_HEIGHT WINDOW_HEIGHT
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
@@ -62,8 +62,7 @@ void drawRays()
         rayY = sin(rayAngle) * DISTANCE_COEFFICIENT; // use vector decomposition to determine X and Y components of the ray
         rayX = cos(rayAngle) * DISTANCE_COEFFICIENT; // 
 
-        distance = 0;
-        while (distance++ < MAX_DISTANCE*RESOLUTION) // check for ray collision
+        for(distance = 0; distance < MAX_DISTANCE; distance++) // check for ray collision
         {
             wallX = wallX + rayX; // increase wall coordinates
             wallY = wallY + rayY;
@@ -75,9 +74,6 @@ void drawRays()
                 break;
             }
         }
-
-        if (distance == MAX_DISTANCE*RESOLUTION)
-            continue;
 
         // fisheye compensation
         cameraAngle = playerAngle - rayAngle; // determine the camera angle
