@@ -1,3 +1,3 @@
 set -e
-gcc -g raycaster.c -lGL -lGLU -lglut -lm -o ray
+gcc -Ofast -g raycaster.c -lGL -lGLU -lglut -lm -o ray
 ./ray

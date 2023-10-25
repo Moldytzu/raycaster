@@ -45,15 +45,15 @@ void playerUpdateDelta()
 #define MAX_DISTANCE 1000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
 #define DISTANCE_COEFFICIENT (0.01 / RESOLUTION)
-#define SHADE_COEFFICIENT 1
+#define SHADE_COEFFICIENT 500
 #define MAX_WALL_HEIGHT WINDOW_HEIGHT
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
-#define MAX_FPS 100
+#define MAX_FPS 1000
 void drawRays()
 {
     int a =  glutGet(GLUT_ELAPSED_TIME);
 
-    double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle;
+    double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle, shadeDistance;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
         rayAngle = playerAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
@@ -88,13 +88,15 @@ void drawRays()
         lineOffset = WALL_HEIGHT - lineHeight/2; // move the line at middle
 
         // draw the ray on the map
+        shadeDistance = 1 / distance;
+
         glLineWidth(1 / RESOLUTION);
         glBegin(GL_LINES);
-        glColor3f(1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0, 0); // wall
+        glColor3f(shadeDistance * SHADE_COEFFICIENT, 0, 0); // wall
         glVertex2f(ray / RESOLUTION, lineHeight + lineOffset);
         glVertex2f(ray / RESOLUTION, lineOffset);
 
-        glColor3f(0, 1 / (distance * DISTANCE_COEFFICIENT) * SHADE_COEFFICIENT, 0); // floor
+        glColor3f(0, shadeDistance * SHADE_COEFFICIENT, 0); // floor
         glVertex2f(ray / RESOLUTION, lineOffset);
         glVertex2f(ray / RESOLUTION, 0);
         glEnd();
