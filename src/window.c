@@ -85,9 +85,62 @@ __attribute__((always_inline)) inline static void castWalls()
     }
 }
 
+void castFloor()
+{
+    double rayAngle, tileX, tileY, rayX, rayY, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
+    int wallTextureX = 0, wallTextureY = 0;
+    bool hitRight, hitLeft, hitFront, hitBack;
+
+    int lines = 0;
+    for (double ray = 0; ray < FOV * (WINDOW_WIDTH / FOV); ray++) // we want to raycast FOV * RAYS_PER_DEG rays
+    {
+        rayAngle = playerXAngle + TO_RADIANS(ray / (WINDOW_WIDTH / FOV) - FOV / 2); // set the ray angle derived from the ray index
+        tileX = playerX;                                                            // set current wall coordinates to player's
+        tileY = playerY;                                                            //
+        rayY = sin(rayAngle) * DISTANCE_COEFFICIENT;                                // use vector decomposition to determine X and Y components of the ray
+        rayX = cos(rayAngle) * DISTANCE_COEFFICIENT;                                //
+
+        bool inMap = true;
+        distance = 0;
+
+        // cast the ray until the map ends or we encounter a wall
+        for (;;)
+        {
+            tileX += rayX; // increase wall coordinates
+            tileY += rayY;
+
+            inMap = (int)tileX < mapWidth && (int)tileY < mapHeight && (int)tileX >= 0 && (int)tileY >= 0;
+
+            if (mapWalls[(int)tileY][(int)tileX] || !inMap)
+                break;
+
+            distance++;
+
+            lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
+            lineOffset = WALL_HEIGHT - lineHeight / 2 + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
+
+            // draw the ray on the map
+            shadeDistance = 1 / distance;
+            shading = shadeDistance * SHADE_COEFFICIENT;
+
+            if (shading >= 1) // clamp the shade to 1
+                shading = 1;
+
+            glColor3d(0, shading, 0);
+            glVertex2d(ray, lineOffset);
+            glVertex2d(ray, lineOffset - 1);
+            lines++;
+        }
+    }
+
+    printf("%d ", lines);
+}
+
 void windowPaint()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
     glBegin(GL_LINES);
+    castFloor();
     castWalls(); // do wall casting
     glEnd();
     glutSwapBuffers(); // update the screen
