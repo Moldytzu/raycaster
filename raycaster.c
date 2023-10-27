@@ -152,10 +152,8 @@ void windowUpdate()
 {
     int a =  glutGet(GLUT_ELAPSED_TIME);
 
-    glClear(GL_COLOR_BUFFER_BIT); // clear the screen
-    drawRays();                   // draw rays on screen
-    glFlush();                    // flush all draw commands
-    glutSwapBuffers();            // update the screen
+    drawRays();        // draw rays on screen
+    glutSwapBuffers(); // update the screen
 
     do
     {
@@ -165,7 +163,7 @@ void windowUpdate()
 
     printf("FPS: %f\n",1/deltaTime);
 
-    glutPostRedisplay();          // redraw window
+    glutPostRedisplay(); // redraw window
 }
 
 void windowKeyboard(char key, int x, int y)
