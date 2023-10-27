@@ -119,6 +119,9 @@ void castFloor()
             lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
             lineOffset = WALL_HEIGHT - lineHeight / 2 + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
 
+            if (lineOffset <= 1) // outside of the viewing range
+                continue;
+
             // draw the ray on the map
             shadeDistance = 1 / distance;
             shading = shadeDistance * SHADE_COEFFICIENT;
