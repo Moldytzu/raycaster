@@ -25,8 +25,8 @@ const static int mapWalls[8][8] = {
 // settings
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-#define FOV 75.0 // in degrees
-#define RESOLUTION 4
+#define FOV 75.0     // in degrees
+#define RESOLUTION 1 // higher is better quality
 #define MAX_DISTANCE 10000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
 #define DISTANCE_COEFFICIENT (0.005 / TO_RADIANS(FOV))
@@ -34,6 +34,8 @@ const static int mapWalls[8][8] = {
 #define MAX_WALL_HEIGHT WINDOW_HEIGHT
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
 #define MAX_FPS 0
+#define FLOOR_COEFFICIENT 10.0 // less is higher quality
+#define FLOOR_HIDE_COEFFICIENT (FLOOR_COEFFICIENT / 2)
 
 // Helpers
 #define TO_RADIANS(x) ((x) * (PI / 180.0))

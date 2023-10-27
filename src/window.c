@@ -79,7 +79,7 @@ __attribute__((always_inline)) inline static void castWalls()
         {
             wallTextureY = TEXTURE_HEIGHT - 1 - (int)drawY;
             glColor3d(wallTexture[wallTextureY][wallTextureX] * shading, 0, 0);
-            glVertex2d(ray / RESOLUTION, drawY * z + lineOffset);
+            glVertex2d(ray / RESOLUTION, drawY * z + lineOffset - FLOOR_HIDE_COEFFICIENT /*hides floor mapping inaccuracies*/);
             glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
         }
     }
@@ -91,14 +91,13 @@ void castFloor()
     int wallTextureX = 0, wallTextureY = 0;
     bool hitRight, hitLeft, hitFront, hitBack;
 
-    int lines = 0;
-    for (double ray = 0; ray < FOV * (WINDOW_WIDTH / FOV); ray++) // we want to raycast FOV * RAYS_PER_DEG rays
+    for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
-        rayAngle = playerXAngle + TO_RADIANS(ray / (WINDOW_WIDTH / FOV) - FOV / 2); // set the ray angle derived from the ray index
-        tileX = playerX;                                                            // set current wall coordinates to player's
-        tileY = playerY;                                                            //
-        rayY = sin(rayAngle) * DISTANCE_COEFFICIENT;                                // use vector decomposition to determine X and Y components of the ray
-        rayX = cos(rayAngle) * DISTANCE_COEFFICIENT;                                //
+        rayAngle = playerXAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
+        tileX = playerX;                                                   // set current wall coordinates to player's
+        tileY = playerY;                                                   //
+        rayY = sin(rayAngle) * DISTANCE_COEFFICIENT * FLOOR_COEFFICIENT;   // use vector decomposition to determine X and Y components of the ray
+        rayX = cos(rayAngle) * DISTANCE_COEFFICIENT * FLOOR_COEFFICIENT;   //
 
         bool inMap = true;
         distance = 0;
@@ -116,27 +115,29 @@ void castFloor()
 
             distance++;
 
-            lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
-            lineOffset = WALL_HEIGHT - lineHeight / 2 + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
+            // fisheye compensation
+            cameraAngle = playerXAngle - rayAngle; // determine the camera angle
+            WRAP_AROUND_RADIANS(cameraAngle);
+            double correctedDistance = distance * cos(cameraAngle); // adjust distance by x component of camera angle
+
+            lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / correctedDistance;
+            lineOffset = WALL_HEIGHT - lineHeight / (2 * FLOOR_COEFFICIENT) + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
 
             if (lineOffset <= 1) // outside of the viewing range
                 continue;
 
             // draw the ray on the map
-            shadeDistance = 1 / distance;
-            shading = shadeDistance * SHADE_COEFFICIENT;
+            shadeDistance = 1 / correctedDistance;
+            shading = shadeDistance * SHADE_COEFFICIENT / FLOOR_COEFFICIENT;
 
             if (shading >= 1) // clamp the shade to 1
                 shading = 1;
 
             glColor3d(0, shading, 0);
-            glVertex2d(ray, lineOffset);
-            glVertex2d(ray, lineOffset - 1);
-            lines++;
+            glVertex2d(ray / RESOLUTION, lineOffset);
+            glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT);
         }
     }
-
-    printf("%d ", lines);
 }
 
 void windowPaint()
