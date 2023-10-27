@@ -138,6 +138,11 @@ void drawRays()
         glVertex2f(ray / RESOLUTION, lineOffset);
         glVertex2f(ray / RESOLUTION, 0);
 
+        // ceiling 
+        glColor3f(0, 0, shading * 0.8);
+        glVertex2f(ray / RESOLUTION, WINDOW_HEIGHT);
+        glVertex2f(ray / RESOLUTION, lineHeight + lineOffset);
+
         glEnd();
     }
 }
