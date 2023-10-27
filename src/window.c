@@ -17,9 +17,13 @@ double wallTexture[TEXTURE_WIDTH][TEXTURE_HEIGHT] = {
 
 __attribute__((always_inline)) inline static void castWalls()
 {
-    double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
+    double rayAngle, wallX, wallY, rayX, rayY, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
     int wallTextureX = 0, wallTextureY = 0;
     bool hitRight, hitLeft, hitFront, hitBack;
+
+    glLineWidth(1 / RESOLUTION);
+    glBegin(GL_LINES);
+
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
         rayAngle = playerXAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
@@ -30,8 +34,8 @@ __attribute__((always_inline)) inline static void castWalls()
 
         for (distance = 0; distance < MAX_DISTANCE; distance++) // check for ray collision
         {
-            wallX = wallX + rayX; // increase wall coordinates
-            wallY = wallY + rayY;
+            wallX += rayX; // increase wall coordinates
+            wallY += rayY;
 
             bool inMap = (int)wallX < mapWidth && (int)wallY < mapHeight && (int)wallX >= 0 && (int)wallY >= 0; // check for wall boundaries
             if (!inMap)
@@ -72,9 +76,6 @@ __attribute__((always_inline)) inline static void castWalls()
         if (shading >= 1) // clamp the shade to 1
             shading = 1;
 
-        glLineWidth(1 / RESOLUTION);
-        glBegin(GL_LINES);
-
         // wall drawing
         double z = lineHeight / TEXTURE_HEIGHT;
         for (double drawY = 0; drawY < TEXTURE_HEIGHT; drawY++)
@@ -84,9 +85,9 @@ __attribute__((always_inline)) inline static void castWalls()
             glVertex2d(ray / RESOLUTION, drawY * z + lineOffset);
             glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
         }
-
-        glEnd();
     }
+
+    glEnd();
 }
 
 void windowPaint()
