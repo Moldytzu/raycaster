@@ -51,8 +51,6 @@ void playerUpdateDelta()
 #define MAX_FPS 1000
 void drawRays()
 {
-    int a =  glutGet(GLUT_ELAPSED_TIME);
-
     double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle, shadeDistance;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
@@ -97,6 +95,17 @@ void drawRays()
         glVertex2f(ray / RESOLUTION, 0);
         glEnd();
     }
+}
+
+// Callbacks
+void windowUpdate()
+{
+    int a =  glutGet(GLUT_ELAPSED_TIME);
+
+    glClear(GL_COLOR_BUFFER_BIT); // clear the screen
+    drawRays();                   // draw rays on screen
+    glFlush();                    // flush all draw commands
+    glutSwapBuffers();            // update the screen
 
     do
     {
@@ -105,15 +114,7 @@ void drawRays()
     } while((1/deltaTime) > MAX_FPS);
 
     printf("FPS: %f\n",1/deltaTime);
-}
 
-// Callbacks
-void windowUpdate()
-{
-    glClear(GL_COLOR_BUFFER_BIT); // clear the screen
-    drawRays();                   // draw rays on screen
-    glFlush();                    // flush all draw commands
-    glutSwapBuffers();            // update the screen
     glutPostRedisplay();          // redraw window
 }
 
