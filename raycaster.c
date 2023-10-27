@@ -5,8 +5,22 @@
 
 // NOTE: all angles are in RADIANS!
 
+// Settings
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
+#define FOV 75.0 // in degrees
+#define RESOLUTION 4
+#define MAX_DISTANCE 10000
+#define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
+#define DISTANCE_COEFFICIENT (0.005 / TO_RADIANS(FOV))
+#define SHADE_COEFFICIENT 400
+#define MAX_WALL_HEIGHT WINDOW_HEIGHT
+#define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
+#define MAX_FPS 0
+
+// Helpers
+#define TO_RADIANS(x) ((x) * (PI / 180.0))
+#define FRACTIONAL_OF(x) ((x) - (int)(x))
 #define PI M_PI
 #define WRAP_AROUND_RADIANS(x) \
     {                          \
@@ -23,6 +37,7 @@
             x = 2 * PI;     \
     }
 
+// Globals
 double playerX = 1, playerY = 1, playerDx, playerDy, playerYAngle = 1.5707 /*90 deg in radians*/, playerXAngle = 0.523 /*30 deg in radians*/, playerSpeed = 1.5, playerRotationDegrees = 100;
 double deltaTime = 0;
 bool keyWalkForwards = false, keyWalkBackwards = false, keyLookLeft = false, keyLookRight = false, keyLookUp = false, keyLookDown = false;
@@ -39,29 +54,7 @@ int mapWalls[8][8] = {
     {1, 1, 1, 1, 1, 1, 1, 1},
 };
 
-// Update/Draw
-void playerUpdateDelta()
-{
-    playerDx = cos(playerXAngle) * playerSpeed; // x component of player angle
-    playerDy = sin(playerXAngle) * playerSpeed; // y component of player angle
-    // becuase playerXAngle is a normalised vector, we can use playerSpeed as a scaler
-}
-
-// helpers
-#define TO_RADIANS(x) ((x) * (PI / 180.0))
-#define FRACTIONAL_OF(x) ((x) - (int)(x))
-
-// settings
-#define FOV 75.0 // in degrees
-#define RESOLUTION 4
-#define MAX_DISTANCE 10000
-#define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
-#define DISTANCE_COEFFICIENT (0.005 / TO_RADIANS(FOV))
-#define SHADE_COEFFICIENT 400
-#define MAX_WALL_HEIGHT WINDOW_HEIGHT
-#define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
-#define MAX_FPS 0
-
+// Textures
 #define TEXTURE_WIDTH 10
 #define TEXTURE_HEIGHT 10
 double wallTexture[TEXTURE_WIDTH][TEXTURE_HEIGHT] = {
@@ -76,6 +69,14 @@ double wallTexture[TEXTURE_WIDTH][TEXTURE_HEIGHT] = {
     {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9},
     {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9},
 };
+
+// Update/Draw
+void playerUpdateDelta()
+{
+    playerDx = cos(playerXAngle) * playerSpeed; // x component of player angle
+    playerDy = sin(playerXAngle) * playerSpeed; // y component of player angle
+    // becuase playerXAngle is a normalised vector, we can use playerSpeed as a scaler
+}
 
 void drawRays()
 {
