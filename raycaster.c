@@ -18,6 +18,7 @@
 
 double playerX = 1, playerY = 1, playerDx, playerDy, playerYAngle = 1.5707 /*90 deg in radians*/, playerXAngle = 0.523 /*30 deg in radians*/, playerSpeed = 1.5, playerRotationDegrees = 100;
 double deltaTime = 0;
+bool keyWalkForwards = false, keyWalkBackwards = false, keyLookLeft = false, keyLookRight = false, keyLookUp = false, keyLookDown = false;
 
 const int mapWidth = 8, mapHeight = 8;
 int mapWalls[8][8] = {
@@ -45,14 +46,14 @@ void playerUpdateDelta()
 
 // settings
 #define FOV 75.0 // in degrees
-#define RESOLUTION 10
+#define RESOLUTION 1
 #define MAX_DISTANCE 10000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
 #define DISTANCE_COEFFICIENT (0.005 / TO_RADIANS(FOV))
 #define SHADE_COEFFICIENT 400
 #define MAX_WALL_HEIGHT WINDOW_HEIGHT
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
-#define MAX_FPS 1000
+#define MAX_FPS 0
 
 #define TEXTURE_WIDTH 10
 #define TEXTURE_HEIGHT 10
@@ -147,11 +148,55 @@ void drawRays()
     }
 }
 
+void inputUpdate()
+{
+    if(keyLookRight)
+    {
+        playerXAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerXAngle);
+        playerUpdateDelta();
+    }
+
+    if(keyLookLeft)
+    {
+        playerXAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerXAngle);
+        playerUpdateDelta();
+    }
+
+    if(keyWalkBackwards)
+    {
+        // do the vector addition and subtraction
+        playerY -= playerDy * playerSpeed * deltaTime;
+        playerX -= playerDx * playerSpeed * deltaTime;
+    }
+
+    if(keyWalkForwards)
+    {
+        // do the vector addition and subtraction
+        playerY += playerDy * playerSpeed * deltaTime;
+        playerX += playerDx * playerSpeed * deltaTime;
+    }
+
+    if(keyLookUp)
+    {
+        playerYAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerYAngle);
+    }
+
+    if(keyLookDown)
+    {
+        playerYAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerYAngle);
+    }
+}
+
 // Callbacks
 void windowUpdate()
 {
     int a =  glutGet(GLUT_ELAPSED_TIME);
 
+    inputUpdate();
     drawRays();        // draw rays on screen
     glutSwapBuffers(); // update the screen
 
@@ -159,11 +204,40 @@ void windowUpdate()
     {
         int b = glutGet(GLUT_ELAPSED_TIME);
         deltaTime = (b-a) * 1/1000.0; 
-    } while((1/deltaTime) > MAX_FPS);
+    } while((1/deltaTime) > MAX_FPS && MAX_FPS);
 
     printf("FPS: %f\n",1/deltaTime);
 
     glutPostRedisplay(); // redraw window
+}
+
+void windowKeyboardUp(char key, int x, int y)
+{
+    switch (key)
+    {
+    case 'd':
+        keyLookRight = false;
+        break;
+    case 'a':
+        keyLookLeft = false;
+        break;
+    case 's':
+        keyWalkBackwards = false;
+        break;
+    case 'w':
+        keyWalkForwards = false;
+        break;
+    case 'i':
+        keyLookUp = false;
+        break;
+    case 'k':
+        keyLookDown = false;
+        break;
+    default:
+        break;
+    }
+
+    glutPostRedisplay(); // tell glut we're done 
 }
 
 void windowKeyboard(char key, int x, int y)
@@ -171,36 +245,22 @@ void windowKeyboard(char key, int x, int y)
     switch (key)
     {
     case 'd':
-        playerXAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerXAngle);
-        playerUpdateDelta();
+        keyLookRight = true;
         break;
-
     case 'a':
-        playerXAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerXAngle);
-        playerUpdateDelta();
+        keyLookLeft = true;
         break;
-
     case 's':
-        // do the vector addition and subtraction
-        playerY -= playerDy * playerSpeed * deltaTime;
-        playerX -= playerDx * playerSpeed * deltaTime;
+        keyWalkBackwards = true;
         break;
-
     case 'w':
-        // do the vector addition and subtraction
-        playerY += playerDy * playerSpeed * deltaTime;
-        playerX += playerDx * playerSpeed * deltaTime;
+        keyWalkForwards = true;
         break;
-
     case 'i':
-        playerYAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerYAngle);
+        keyLookUp = true;
         break;
     case 'k':
-        playerYAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerYAngle);
+        keyLookDown = true;
         break;
     default:
         break;
@@ -220,6 +280,7 @@ void windowInit()
     // set up callbacks
     glutDisplayFunc(windowUpdate);
     glutKeyboardFunc(windowKeyboard);
+    glutKeyboardUpFunc(windowKeyboardUp);
 }
 
 void graphicsInit()
