@@ -21,9 +21,6 @@ __attribute__((always_inline)) inline static void castWalls()
     int wallTextureX = 0, wallTextureY = 0;
     bool hitRight, hitLeft, hitFront, hitBack;
 
-    glLineWidth(1 / RESOLUTION);
-    glBegin(GL_LINES);
-
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
         rayAngle = playerXAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
@@ -86,13 +83,13 @@ __attribute__((always_inline)) inline static void castWalls()
             glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
         }
     }
-
-    glEnd();
 }
 
 void windowPaint()
 {
-    castWalls();       // do wall casting
+    glBegin(GL_LINES);
+    castWalls(); // do wall casting
+    glEnd();
     glutSwapBuffers(); // update the screen
 }
 
@@ -187,4 +184,5 @@ void windowInit()
     // set up opengl context
     glClearColor(0.6, 0.6, 0.6, 0);                // gray background
     gluOrtho2D(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT); // set up projection
+    glLineWidth(1 / RESOLUTION);
 }
