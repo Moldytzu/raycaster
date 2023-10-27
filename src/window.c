@@ -19,7 +19,7 @@ void windowPaint()
 {
     double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
     int wallTextureX, wallTextureY;
-    bool hitRight, hitLeft;
+    bool hitRight, hitLeft, hitFront, hitBack;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
         rayAngle = playerXAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
@@ -40,6 +40,10 @@ void windowPaint()
                 // if wallX coordinate is very close to being an integer, it means it's very close to the edge and we're just casting in the side
                 hitRight = FRACTIONAL_OF(wallX) > 0.99;
                 hitLeft = FRACTIONAL_OF(wallX) < 0.01;
+
+                // same thing, but for the back and front
+                hitFront = FRACTIONAL_OF(wallY) > 0.99;
+                hitBack = FRACTIONAL_OF(wallY) < 0.01;
 
                 if (hitRight || hitLeft)                       // if we've hit the side
                     wallTextureX = FRACTIONAL_OF(wallY) * 100; // we will use the Y fraction as the X index
