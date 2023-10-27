@@ -20,15 +20,15 @@ double playerX = 1, playerY = 1, playerDx, playerDy, playerAngle = 0.523 /*30 de
 double deltaTime = 0;
 
 const int mapWidth = 8, mapHeight = 8;
-int mapWalls[] = {
-    1,1,1,1,1,1,1,1,
-    1,0,0,0,0,0,0,1,
-    1,0,0,1,0,0,0,1,
-    1,0,0,0,0,0,0,1,
-    1,0,0,0,0,1,0,1,
-    1,0,1,0,0,1,0,1,
-    1,0,1,0,0,1,0,1,
-    1,1,1,1,1,1,1,1,
+int mapWalls[8][8] = {
+    {1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,1},
+    {1,0,0,1,0,0,0,1},
+    {1,0,0,0,0,0,0,1},
+    {1,0,0,0,0,1,0,1},
+    {1,0,1,0,0,1,0,1},
+    {1,0,1,0,0,1,0,1},
+    {1,1,1,1,1,1,1,1},
 };
 
 // Update/Draw
@@ -89,7 +89,7 @@ void drawRays()
 
             if (wallX < mapWidth && wallY < mapHeight &&       // check for wall boundaries
                 wallX >= 0 && wallY >= 0 &&
-                mapWalls[(int)wallY * mapHeight + (int)wallX]) // check for wall to be present
+                mapWalls[(int)wallY][(int)wallX]) // check for wall to be present
             {
                 // if wallX coordinate is very close to being an integer, it means it's very close to the edge and we're just casting in the side 
                 hitRight = FRACTIONAL_OF(wallX) > 0.99;
