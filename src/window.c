@@ -15,10 +15,10 @@ double wallTexture[TEXTURE_WIDTH][TEXTURE_HEIGHT] = {
     {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9},
 };
 
-void windowPaint()
+__attribute__((always_inline)) inline static void castWalls()
 {
     double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
-    int wallTextureX, wallTextureY;
+    int wallTextureX = 0, wallTextureY = 0;
     bool hitRight, hitLeft, hitFront, hitBack;
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
@@ -33,9 +33,11 @@ void windowPaint()
             wallX = wallX + rayX; // increase wall coordinates
             wallY = wallY + rayY;
 
-            if ((int)wallX < mapWidth && (int)wallY < mapHeight && // check for wall boundaries
-                (int)wallX >= 0 && (int)wallY >= 0 &&
-                mapWalls[(int)wallY][(int)wallX]) // check for wall to be present
+            bool inMap = (int)wallX < mapWidth && (int)wallY < mapHeight && (int)wallX >= 0 && (int)wallY >= 0; // check for wall boundaries
+            if (!inMap)
+                continue;
+
+            if (mapWalls[(int)wallY][(int)wallX]) // check for wall to be present
             {
                 // if wallX coordinate is very close to being an integer, it means it's very close to the edge and we're just casting in the side
                 hitRight = FRACTIONAL_OF(wallX) > 0.99;
@@ -83,19 +85,13 @@ void windowPaint()
             glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
         }
 
-        // floor drawing
-        glColor3d(0, shading, 0);
-        glVertex2d(ray / RESOLUTION, lineOffset);
-        glVertex2d(ray / RESOLUTION, 0);
-
-        // ceiling
-        glColor3d(0, 0, shading * 0.8);
-        glVertex2d(ray / RESOLUTION, WINDOW_HEIGHT);
-        glVertex2d(ray / RESOLUTION, lineHeight + lineOffset);
-
         glEnd();
     }
+}
 
+void windowPaint()
+{
+    castWalls();       // do wall casting
     glutSwapBuffers(); // update the screen
 }
 
