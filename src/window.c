@@ -74,20 +74,20 @@ void windowPaint()
         for (double drawY = 0; drawY < TEXTURE_HEIGHT; drawY++)
         {
             wallTextureY = TEXTURE_HEIGHT - 1 - (int)drawY;
-            glColor3f(wallTexture[wallTextureY][wallTextureX] * shading, 0, 0);
-            glVertex2f(ray / RESOLUTION, drawY * z + lineOffset);
-            glVertex2f(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
+            glColor3d(wallTexture[wallTextureY][wallTextureX] * shading, 0, 0);
+            glVertex2d(ray / RESOLUTION, drawY * z + lineOffset);
+            glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
         }
 
         // floor drawing
-        glColor3f(0, shading, 0);
-        glVertex2f(ray / RESOLUTION, lineOffset);
-        glVertex2f(ray / RESOLUTION, 0);
+        glColor3d(0, shading, 0);
+        glVertex2d(ray / RESOLUTION, lineOffset);
+        glVertex2d(ray / RESOLUTION, 0);
 
         // ceiling
-        glColor3f(0, 0, shading * 0.8);
-        glVertex2f(ray / RESOLUTION, WINDOW_HEIGHT);
-        glVertex2f(ray / RESOLUTION, lineHeight + lineOffset);
+        glColor3d(0, 0, shading * 0.8);
+        glVertex2d(ray / RESOLUTION, WINDOW_HEIGHT);
+        glVertex2d(ray / RESOLUTION, lineHeight + lineOffset);
 
         glEnd();
     }
