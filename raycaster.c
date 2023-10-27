@@ -87,8 +87,8 @@ void drawRays()
             wallX = wallX + rayX; // increase wall coordinates
             wallY = wallY + rayY;
 
-            if (wallX < mapWidth && wallY < mapHeight &&       // check for wall boundaries
-                wallX >= 0 && wallY >= 0 &&
+            if ((int)wallX < mapWidth && (int)wallY < mapHeight && // check for wall boundaries
+                (int)wallX >= 0 && (int)wallY >= 0 &&
                 mapWalls[(int)wallY][(int)wallX]) // check for wall to be present
             {
                 // if wallX coordinate is very close to being an integer, it means it's very close to the edge and we're just casting in the side 
