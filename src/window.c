@@ -101,16 +101,16 @@ void windowPaint()
 
 void windowUpdate()
 {
-    int a = glutGet(GLUT_ELAPSED_TIME);
+    int a = glutGet(GLUT_ELAPSED_TIME), b;
 
     playerUpdate();
     windowPaint();
 
     do
     {
-        int b = glutGet(GLUT_ELAPSED_TIME);
+        b = glutGet(GLUT_ELAPSED_TIME);
         deltaTime = (b - a) * 1 / 1000.0;
-    } while ((1 / deltaTime) > MAX_FPS && MAX_FPS);
+    } while (b - a <= 0 || ((1 / deltaTime) > MAX_FPS && MAX_FPS));
 
     printf("FPS: %f\n", 1 / deltaTime);
 
