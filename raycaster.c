@@ -16,7 +16,7 @@
             x -= 2 * PI;       \
     } // wrap x degree around radians values (0<=x<=2PI)
 
-double playerX = 1, playerY = 1, playerDx, playerDy, playerAngle = 0.523 /*30 deg in radians*/, playerSpeed = 1.5, playerRotationDegrees = 100;
+double playerX = 1, playerY = 1, playerDx, playerDy, playerYAngle = 1.5707 /*90 deg in radians*/, playerXAngle = 0.523 /*30 deg in radians*/, playerSpeed = 1.5, playerRotationDegrees = 100;
 double deltaTime = 0;
 
 const int mapWidth = 8, mapHeight = 8;
@@ -34,9 +34,9 @@ int mapWalls[8][8] = {
 // Update/Draw
 void playerUpdateDelta()
 {
-    playerDx = cos(playerAngle) * playerSpeed; // x component of player angle
-    playerDy = sin(playerAngle) * playerSpeed; // y component of player angle
-    // becuase playerAngle is a normalised vector, we can use playerSpeed as a scaler
+    playerDx = cos(playerXAngle) * playerSpeed; // x component of player angle
+    playerDy = sin(playerXAngle) * playerSpeed; // y component of player angle
+    // becuase playerXAngle is a normalised vector, we can use playerSpeed as a scaler
 }
 
 // helpers
@@ -44,7 +44,7 @@ void playerUpdateDelta()
 #define FRACTIONAL_OF(x) ((x)-(int)(x))
 
 // settings
-#define FOV 60.0 // in degrees
+#define FOV 75.0 // in degrees
 #define RESOLUTION 10
 #define MAX_DISTANCE 10000
 #define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
@@ -76,7 +76,7 @@ void drawRays()
     bool hitRight, hitLeft; 
     for (double ray = 0; ray < FOV * RAY_PER_DEG; ray++) // we want to raycast FOV * RAYS_PER_DEG rays
     {
-        rayAngle = playerAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
+        rayAngle = playerXAngle + TO_RADIANS(ray / RAY_PER_DEG - FOV / 2); // set the ray angle derived from the ray index
         wallX = playerX; // set current wall coordinates to player's
         wallY = playerY; //
         rayY = sin(rayAngle) * DISTANCE_COEFFICIENT; // use vector decomposition to determine X and Y components of the ray
@@ -106,12 +106,12 @@ void drawRays()
         }
 
         // fisheye compensation
-        cameraAngle = playerAngle - rayAngle; // determine the camera angle
+        cameraAngle = playerXAngle - rayAngle; // determine the camera angle
         WRAP_AROUND_RADIANS(cameraAngle);
         distance = distance * cos(cameraAngle); // adjust distance by x component of camera angle
 
         lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
-        lineOffset = WALL_HEIGHT - lineHeight/2; // move the line at middle
+        lineOffset = WALL_HEIGHT - lineHeight/2 + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
 
         // draw the ray on the map
         shadeDistance = 1 / distance;
@@ -171,14 +171,14 @@ void windowKeyboard(char key, int x, int y)
     switch (key)
     {
     case 'd':
-        playerAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerAngle);
+        playerXAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerXAngle);
         playerUpdateDelta();
         break;
 
     case 'a':
-        playerAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerAngle);
+        playerXAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerXAngle);
         playerUpdateDelta();
         break;
 
@@ -194,6 +194,14 @@ void windowKeyboard(char key, int x, int y)
         playerX += playerDx * playerSpeed * deltaTime;
         break;
 
+    case 'i':
+        playerYAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerYAngle);
+        break;
+    case 'k':
+        playerYAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
+        WRAP_AROUND_RADIANS(playerYAngle);
+        break;
     default:
         break;
     }
