@@ -1,60 +1,5 @@
-#include <GL/glut.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdbool.h>
+#include <raycaster.h>
 
-// NOTE: all angles are in RADIANS!
-
-// Settings
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
-#define FOV 75.0 // in degrees
-#define RESOLUTION 4
-#define MAX_DISTANCE 10000
-#define RAY_PER_DEG (WINDOW_WIDTH / FOV * RESOLUTION)
-#define DISTANCE_COEFFICIENT (0.005 / TO_RADIANS(FOV))
-#define SHADE_COEFFICIENT 400
-#define MAX_WALL_HEIGHT WINDOW_HEIGHT
-#define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
-#define MAX_FPS 0
-
-// Helpers
-#define TO_RADIANS(x) ((x) * (PI / 180.0))
-#define FRACTIONAL_OF(x) ((x) - (int)(x))
-#define PI M_PI
-#define WRAP_AROUND_RADIANS(x) \
-    {                          \
-        if (x < 0)             \
-            x += 2 * PI;       \
-        if (x > 2 * PI)        \
-            x -= 2 * PI;       \
-    } // wrap x degree around radians values (0<=x<=2PI)
-#define CLAMP_TO_RADIANS(x) \
-    {                       \
-        if (x < 0)          \
-            x = 0;          \
-        if (x > 2 * PI)     \
-            x = 2 * PI;     \
-    }
-
-// Globals
-double playerX = 1, playerY = 1, playerDx, playerDy, playerYAngle = 1.5707 /*90 deg in radians*/, playerXAngle = 0.523 /*30 deg in radians*/, playerSpeed = 1.5, playerRotationDegrees = 100;
-double deltaTime = 0;
-bool keyWalkForwards = false, keyWalkBackwards = false, keyLookLeft = false, keyLookRight = false, keyLookUp = false, keyLookDown = false;
-
-const int mapWidth = 8, mapHeight = 8;
-int mapWalls[8][8] = {
-    {1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 1, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 1, 0, 1},
-    {1, 0, 1, 0, 0, 1, 0, 1},
-    {1, 0, 1, 0, 0, 1, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1},
-};
-
-// Textures
 #define TEXTURE_WIDTH 10
 #define TEXTURE_HEIGHT 10
 double wallTexture[TEXTURE_WIDTH][TEXTURE_HEIGHT] = {
@@ -70,15 +15,7 @@ double wallTexture[TEXTURE_WIDTH][TEXTURE_HEIGHT] = {
     {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9},
 };
 
-// Update/Draw
-void playerUpdateDelta()
-{
-    playerDx = cos(playerXAngle) * playerSpeed; // x component of player angle
-    playerDy = sin(playerXAngle) * playerSpeed; // y component of player angle
-    // becuase playerXAngle is a normalised vector, we can use playerSpeed as a scaler
-}
-
-void drawRays()
+void windowPaint()
 {
     double rayAngle, wallX, wallY, rayX, rayY, h, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
     int wallTextureX, wallTextureY;
@@ -154,61 +91,16 @@ void drawRays()
 
         glEnd();
     }
+
+    glutSwapBuffers(); // update the screen
 }
 
-void inputUpdate()
-{
-    if (keyLookRight)
-    {
-        playerXAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerXAngle);
-        playerUpdateDelta();
-    }
-
-    if (keyLookLeft)
-    {
-        playerXAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
-        WRAP_AROUND_RADIANS(playerXAngle);
-        playerUpdateDelta();
-    }
-
-    if (keyWalkBackwards)
-    {
-        // do the vector addition and subtraction
-        playerY -= playerDy * playerSpeed * deltaTime;
-        playerX -= playerDx * playerSpeed * deltaTime;
-    }
-
-    if (keyWalkForwards)
-    {
-        // do the vector addition and subtraction
-        playerY += playerDy * playerSpeed * deltaTime;
-        playerX += playerDx * playerSpeed * deltaTime;
-    }
-
-    if (keyLookUp)
-    {
-        playerYAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
-        if (playerYAngle >= PI)
-            playerYAngle = PI;
-    }
-
-    if (keyLookDown)
-    {
-        playerYAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
-        if (playerYAngle <= 0)
-            playerYAngle = 0;
-    }
-}
-
-// Callbacks
 void windowUpdate()
 {
     int a = glutGet(GLUT_ELAPSED_TIME);
 
-    inputUpdate();
-    drawRays();        // draw rays on screen
-    glutSwapBuffers(); // update the screen
+    playerUpdate();
+    windowPaint();
 
     do
     {
@@ -279,7 +171,6 @@ void windowKeyboard(char key, int x, int y)
     glutPostRedisplay(); // tell glut we're done
 }
 
-// Initialisation
 void windowInit()
 {
     // create a window with glut
@@ -291,20 +182,8 @@ void windowInit()
     glutDisplayFunc(windowUpdate);
     glutKeyboardFunc(windowKeyboard);
     glutKeyboardUpFunc(windowKeyboardUp);
-}
 
-void graphicsInit()
-{
+    // set up opengl context
     glClearColor(0.6, 0.6, 0.6, 0);                // gray background
     gluOrtho2D(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT); // set up projection
-}
-
-int main(int argc, char **argv)
-{
-    glutInit(&argc, argv); // initialise glut
-    windowInit();          // create the window
-    graphicsInit();        // initialise opengl
-    playerUpdateDelta();   // generate initial player x and y delta
-    glutMainLoop();        // run the program
-    return 0;
 }
