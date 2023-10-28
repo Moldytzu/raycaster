@@ -34,7 +34,7 @@ const static int mapWalls[8][8] = {
 #define MAX_WALL_HEIGHT WINDOW_HEIGHT
 #define WALL_HEIGHT (MAX_WALL_HEIGHT / 2)
 #define MAX_FPS 0
-#define FLOOR_COEFFICIENT 10.0 // less is higher quality
+#define FLOOR_COEFFICIENT 5.0 // less is higher quality
 #define FLOOR_HIDE_COEFFICIENT (FLOOR_COEFFICIENT / 2)
 
 // Helpers

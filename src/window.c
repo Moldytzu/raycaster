@@ -115,6 +115,13 @@ void castFloor()
 
             distance++;
 
+            // calculate texture coordinates
+            wallTextureX = FRACTIONAL_OF(tileX) * 100;
+            wallTextureX /= TEXTURE_WIDTH;
+
+            wallTextureY = FRACTIONAL_OF(tileY) * 100;
+            wallTextureY /= TEXTURE_WIDTH;
+
             // fisheye compensation
             cameraAngle = playerXAngle - rayAngle; // determine the camera angle
             WRAP_AROUND_RADIANS(cameraAngle);
@@ -133,7 +140,7 @@ void castFloor()
             if (shading >= 1) // clamp the shade to 1
                 shading = 1;
 
-            glColor3d(0, shading, 0);
+            glColor3d(0, shading * wallTexture[wallTextureY][wallTextureX], 0);
             glVertex2d(ray / RESOLUTION, lineOffset);
             glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
 
