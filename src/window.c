@@ -87,7 +87,7 @@ __attribute__((always_inline)) inline static void castWalls()
 
 void castFloor()
 {
-    double rayAngle, tileX, tileY, rayX, rayY, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading;
+    double rayAngle, tileX, tileY, rayX, rayY, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading, lastLineOffset = 0.0001;
     int wallTextureX = 0, wallTextureY = 0;
     bool hitRight, hitLeft, hitFront, hitBack;
 
@@ -135,7 +135,9 @@ void castFloor()
 
             glColor3d(0, shading, 0);
             glVertex2d(ray / RESOLUTION, lineOffset);
-            glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT);
+            glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
+
+            lastLineOffset = lineOffset;
         }
     }
 }
