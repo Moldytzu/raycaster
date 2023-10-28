@@ -85,7 +85,7 @@ __attribute__((always_inline)) inline static void castWalls()
     }
 }
 
-void castFloor()
+void castFloorAndCeiling()
 {
     double rayAngle, tileX, tileY, rayX, rayY, distance, lineHeight, lineOffset, cameraAngle, shadeDistance, shading, lastLineOffset = 0.0001;
     int wallTextureX = 0, wallTextureY = 0;
@@ -130,9 +130,6 @@ void castFloor()
             lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / correctedDistance;
             lineOffset = WALL_HEIGHT - lineHeight / (2 * FLOOR_COEFFICIENT) + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
 
-            if (lineOffset <= 1) // outside of the viewing range
-                continue;
-
             // draw the ray on the map
             shadeDistance = 1 / correctedDistance;
             shading = shadeDistance * SHADE_COEFFICIENT / FLOOR_COEFFICIENT;
@@ -140,9 +137,15 @@ void castFloor()
             if (shading >= 1) // clamp the shade to 1
                 shading = 1;
 
+            // draw floor
             glColor3d(0, shading * wallTexture[wallTextureY][wallTextureX], 0);
             glVertex2d(ray / RESOLUTION, lineOffset);
             glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
+
+            // draw ceiling
+            glColor3d(0, 0, shading * wallTexture[wallTextureY][wallTextureX]);
+            glVertex2d(ray / RESOLUTION, WINDOW_HEIGHT - lineOffset);
+            glVertex2d(ray / RESOLUTION, lineOffset + FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
 
             lastLineOffset = lineOffset;
         }
@@ -153,8 +156,8 @@ void windowPaint()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glBegin(GL_LINES);
-    castFloor();
-    castWalls(); // do wall casting
+    castFloorAndCeiling(); // do floor and ceiling casting
+    castWalls();           // do wall casting
     glEnd();
     glutSwapBuffers(); // update the screen
 }
