@@ -80,7 +80,7 @@ __attribute__((always_inline)) inline static void castWalls()
             wallTextureY = TEXTURE_HEIGHT - 1 - (int)drawY;
             glColor3d(wallTexture[wallTextureY][wallTextureX] * shading, 0, 0);
             glVertex2d(ray / RESOLUTION, drawY * z + lineOffset - FLOOR_HIDE_COEFFICIENT /*hides floor mapping inaccuracies*/);
-            glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset);
+            glVertex2d(ray / RESOLUTION, (drawY + 1) * z + lineOffset - FLOOR_HIDE_COEFFICIENT /*hides floor mapping inaccuracies*/);
         }
     }
 }
