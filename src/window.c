@@ -138,14 +138,20 @@ void castFloorAndCeiling()
                 shading = 1;
 
             // draw floor
-            glColor3d(0, shading * wallTexture[wallTextureY][wallTextureX], 0);
-            glVertex2d(ray / RESOLUTION, lineOffset);
-            glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
+            if (lineOffset > 1)
+            {
+                glColor3d(0, shading * wallTexture[wallTextureY][wallTextureX], 0);
+                glVertex2d(ray / RESOLUTION, lineOffset);
+                glVertex2d(ray / RESOLUTION, lineOffset - FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
+            }
 
             // draw ceiling
-            glColor3d(0, 0, shading * wallTexture[wallTextureY][wallTextureX]);
-            glVertex2d(ray / RESOLUTION, WINDOW_HEIGHT - lineOffset);
-            glVertex2d(ray / RESOLUTION, lineOffset + FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
+            if (lineOffset < WALL_HEIGHT)
+            {
+                glColor3d(0, 0, shading * wallTexture[wallTextureY][wallTextureX]);
+                glVertex2d(ray / RESOLUTION, MAX_WALL_HEIGHT - lineOffset + WINDOW_HEIGHT * cos(2 * PI - playerYAngle));
+                glVertex2d(ray / RESOLUTION, lineOffset + FLOOR_COEFFICIENT * fabs(lineOffset - lastLineOffset));
+            }
 
             lastLineOffset = lineOffset;
         }
