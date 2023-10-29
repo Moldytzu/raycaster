@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 // globals
-extern double playerX, playerY, playerDx, playerDy, playerYAngle, playerXAngle, playerSpeed, playerRotationDegrees;
+extern double playerX, playerY, playerDx, playerDy, playerDz, playerYAngle, playerXAngle, playerSpeed, playerRotationDegrees;
 extern double deltaTime;
 extern bool keyWalkForwards, keyWalkBackwards, keyLookLeft, keyLookRight, keyLookUp, keyLookDown;
 

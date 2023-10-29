@@ -64,7 +64,7 @@ __attribute__((always_inline)) inline static void castWalls()
         distance = distance * cos(cameraAngle); // adjust distance by x component of camera angle
 
         lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / distance;
-        lineOffset = WALL_HEIGHT - lineHeight / 2 + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
+        lineOffset = WALL_HEIGHT - lineHeight / 2 + WINDOW_HEIGHT * playerDz; // move the line at middle and modify its offset based on the player vertical angle
 
         // draw the ray on the map
         shadeDistance = 1 / distance;
@@ -128,7 +128,7 @@ void castFloorAndCeiling()
             double correctedDistance = distance * cos(cameraAngle); // adjust distance by x component of camera angle
 
             lineHeight = WALL_HEIGHT * MAX_WALL_HEIGHT / correctedDistance;
-            lineOffset = WALL_HEIGHT - lineHeight / (2 * FLOOR_COEFFICIENT) + WINDOW_HEIGHT * cos(playerYAngle); // move the line at middle and modify its offset based on the player vertical angle
+            lineOffset = WALL_HEIGHT - lineHeight / (2 * FLOOR_COEFFICIENT) + WINDOW_HEIGHT * playerDz; // move the line at middle and modify its offset based on the player vertical angle
 
             // draw the ray on the map
             shadeDistance = 1 / correctedDistance;

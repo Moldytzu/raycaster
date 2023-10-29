@@ -42,6 +42,8 @@ void playerUpdate()
         playerYAngle += TO_RADIANS(playerRotationDegrees * deltaTime);
         if (playerYAngle >= PI)
             playerYAngle = PI;
+
+        playerDz = cos(playerYAngle);
     }
 
     if (keyLookDown)
@@ -49,5 +51,7 @@ void playerUpdate()
         playerYAngle -= TO_RADIANS(playerRotationDegrees * deltaTime);
         if (playerYAngle <= 0)
             playerYAngle = 0;
+
+        playerDz = cos(playerYAngle);
     }
 }
